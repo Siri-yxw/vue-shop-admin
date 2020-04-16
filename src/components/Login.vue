@@ -54,7 +54,7 @@ export default {
         if (res.meta.status != 200) return this.$message.error(res.meta.msg)
         this.$message.success(res.meta.msg)
         window.localStorage.setItem('token', res.data.token)
-        this.$router.push('home')
+        this.$router.push('/home')
       })
     },
     resetForm(formName) {
