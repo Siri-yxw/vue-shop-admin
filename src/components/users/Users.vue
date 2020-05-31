@@ -91,8 +91,8 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="addUserForm.username" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="passwod">
-          <el-input v-model="addUserForm.passwod" autocomplete="off"></el-input>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addUserForm.password" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="addUserForm.email" autocomplete="off"></el-input>
@@ -128,6 +128,31 @@
         <el-button type="primary" @click="editUserConfirm">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配角色 -->
+    <el-dialog
+  title="分配角色"
+  :visible.sync="isShouwHandleSettingUserDialog"
+  width="60%"
+  :before-close="handleClose"
+  @close = "closeSettingUserDialog">
+  <div>当前用户：{{userInfo.role_name}}</div>
+  <div>当前角色:{{userInfo.username}}</div>
+  <div>
+    <span>分配新角色:</span>
+    <el-select v-model="selectedRoleId" placeholder="请选择">
+      <el-option
+        v-for="item in usersOptions"
+        :key="item.id"
+        :label="item.roleName"
+        :value="item.id">
+      </el-option>
+    </el-select>
+  </div>
+  <span slot="footer" class="dialog-footer">
+    <el-button @click="isShouwHandleSettingUserDialog = false">取 消</el-button>
+    <el-button type="primary" @click="confirmSetUserBtn">确 定</el-button>
+  </span>
+</el-dialog>
     </div>
 </template>
 <script>
@@ -159,7 +184,7 @@ export default {
       EditDialogVisible: false,
       addUserForm: {
         username: '',
-        passwod: '',
+        password: '',
         email: '',
         mobile: ''
       },
@@ -168,7 +193,7 @@ export default {
           { required: true, message: '请输入用户名称', trigger: 'blur' },
           { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'blur' }
         ],
-        passwod: [
+        password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 3, max: 6, message: '长度在 3 到 6 个字符', trigger: 'blur' }
         ],
@@ -187,7 +212,13 @@ export default {
         ],
         email: [{ validator: checkEmail, trigger: 'blur', required: true }],
         mobile: [{ validator: checkMobile, trigger: 'blur', required: true }]
-      }
+      },
+      isShouwHandleSettingUserDialog: false,
+      usersOptions: [],
+      userInfo: {},
+      roleDesc: '',
+      rid: '',
+      selectedRoleId: ''
     }
   },
   created() {
@@ -280,7 +311,7 @@ export default {
         }
       ).catch(err => err)
       if (delConfirmResult != 'confirm') {
-        this.$message.info('已取消删除')
+        return this.$message.info('已取消删除')
       }
       const { data: res } = await this.$http.delete('/users' + '/' + id)
       if (res.meta.status != 200) return $message.error(res.meta.msg)
@@ -288,7 +319,37 @@ export default {
       this.$message.info('删除成功')
     },
     // 分配角色
-    handleSettingUser(index, row) {}
+    async handleSettingUser(index, row) {
+      this.userInfo = row
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status != 200) return this.$message.error(res.meta.msg)
+      this.usersOptions = res.data
+      this.isShouwHandleSettingUserDialog = true
+    },
+    async confirmSetUserBtn() {
+      if (!this.selectedRoleId)
+        return this.$message.error('请选择要分配的权限！')
+      const { data: res } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.selectedRoleId
+        }
+      )
+      if (res.meta.status != 200) return this.$message.error(res.meta.msg)
+      this.$message.success('分配角色成功！')
+      this.getUsersList()
+      this.isShouwHandleSettingUserDialog = false
+    },
+    closeSettingUserDialog() {
+      ;(this.selectedRoleId = ''), (this.userInfo = {})
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    }
   }
 }
 </script>
