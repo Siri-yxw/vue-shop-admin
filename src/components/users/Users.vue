@@ -272,6 +272,7 @@ export default {
         // console.log(res, 'res')
         if (res.meta.status != 201) return this.$message.error(res.meta.msg)
         this.$message.success('添加成功')
+        console.log(this.$message)
         this.addDialogFormVisible = false
         this.getUsersList()
       })

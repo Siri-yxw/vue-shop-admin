@@ -3,3 +3,6 @@ html,body,#app{
   margin: 0;
   padding: 0;
 }
+.el-cascader-panel {
+  height: 300px;
+}

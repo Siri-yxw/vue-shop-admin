@@ -4,6 +4,9 @@ import router from './router'
 import axios from 'axios';
 import './plugins/element.js'
 import './assets/css/global.css'
+import TreeTable from 'vue-table-with-tree-grid'
+
+Vue.component('tree_table', TreeTable)
 
 Vue.config.productionTip = false
 axios.defaults.baseURL = 'http://timemeetyou.com:8889/api/private/v1';
