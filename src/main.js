@@ -22,6 +22,8 @@ axios.interceptors.request.use(function (config) {
 });
 Vue.prototype.$http = axios
 
+console.log(axios, 'axios')
+
 new Vue({
   router,
   render: h => h(App)
